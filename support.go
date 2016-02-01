@@ -1,8 +1,7 @@
 package lagrange
 
 type product struct {
-	jump    uint
-	skip    uint
+	stride  uint
 	repeat  uint
 	weights []float64
 }
@@ -13,8 +12,7 @@ func newProduct(count uint) *product {
 		weights[i] = 1.0
 	}
 	return &product{
-		jump:    1,
-		skip:    1,
+		stride:  1,
 		repeat:  count,
 		weights: weights,
 	}
@@ -23,15 +21,15 @@ func newProduct(count uint) *product {
 func (self *product) next(values []float64) {
 	order := uint(len(values))
 	self.repeat /= order
-	self.skip *= order
+	stride := self.stride * order
 	for i := uint(0); i < order; i++ {
-		start := i * self.jump
+		start := i * self.stride
 		for j := uint(0); j < self.repeat; j++ {
-			for k := start; k < start+self.jump; k++ {
+			for k := start; k < start+self.stride; k++ {
 				self.weights[k] *= values[i]
 			}
-			start += self.skip
+			start += stride
 		}
 	}
-	self.jump *= order
+	self.stride = stride
 }
