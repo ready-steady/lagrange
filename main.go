@@ -8,17 +8,18 @@ package lagrange
 type Interpolant struct {
 	nd     uint
 	nn     uint
-	grid   [][]float64
+	grids  [][]float64
 	values []float64
 }
 
-// New creates an interpolant for a given set of multidimensional grid and the
-// corresponding scalar values of the target function.
-func New(grid [][]float64, values []float64) *Interpolant {
+// New creates an interpolant given a set of one-dimensional grids and a set of
+// values of the target function obtained at the nodes of the corresponding
+// tensor-product grid.
+func New(grids [][]float64, values []float64) *Interpolant {
 	return &Interpolant{
-		nd:     uint(len(grid)),
+		nd:     uint(len(grids)),
 		nn:     uint(len(values)),
-		grid:   grid,
+		grids:  grids,
 		values: values,
 	}
 }
@@ -27,17 +28,31 @@ func New(grid [][]float64, values []float64) *Interpolant {
 // points.
 func (self *Interpolant) Evaluate(points []float64) []float64 {
 	nd, nn := self.nd, self.nn
-	grid, values := self.grid, self.values
+	grids, values := self.grids, self.values
 	np := uint(len(points)) / nd
 	result := make([]float64, np)
 	for i := uint(0); i < np; i++ {
-		weights := newWeightProduct(nn)
+		product := newWeight(nn)
 		for j := uint(0); j < nd; j++ {
-			weights.next(lagrange(grid[j], points[i*nd+j]))
+			product.next(lagrange(grids[j], points[i*nd+j]))
 		}
-		result[i] = dot(weights.values, values)
+		result[i] = dot(product.values, values)
 	}
 	return result
+}
+
+// Tensor constructs a tensor-product grid given a set one-dimentional grids.
+func Tensor(grids [][]float64) []float64 {
+	dimensions := uint(len(grids))
+	count := uint(1)
+	for i := uint(0); i < dimensions; i++ {
+		count *= uint(len(grids[i]))
+	}
+	product := newGrid(dimensions, count)
+	for i := uint(0); i < dimensions; i++ {
+		product.next(grids[i])
+	}
+	return product.values
 }
 
 func lagrange(nodes []float64, point float64) []float64 {

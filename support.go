@@ -6,11 +6,6 @@ type product struct {
 	repeat uint
 }
 
-type weightProduct struct {
-	product
-	values []float64
-}
-
 func newProduct(count uint) product {
 	return product{
 		index:  0,
@@ -35,18 +30,43 @@ func (self *product) next(order uint, process func(uint, uint, uint)) {
 	self.index++
 }
 
-func newWeightProduct(count uint) weightProduct {
+type grid struct {
+	product
+	dimensions uint
+	values     []float64
+}
+
+func newGrid(dimensions uint, count uint) grid {
+	return grid{
+		product:    newProduct(count),
+		dimensions: dimensions,
+		values:     make([]float64, dimensions*count),
+	}
+}
+
+func (self *grid) next(values []float64) {
+	self.product.next(uint(len(values)), func(index, order, position uint) {
+		self.values[position*self.dimensions+index] = values[order]
+	})
+}
+
+type weight struct {
+	product
+	values []float64
+}
+
+func newWeight(count uint) weight {
 	values := make([]float64, count)
 	for i := range values {
 		values[i] = 1.0
 	}
-	return weightProduct{
+	return weight{
 		product: newProduct(count),
 		values:  values,
 	}
 }
 
-func (self *weightProduct) next(values []float64) {
+func (self *weight) next(values []float64) {
 	self.product.next(uint(len(values)), func(_, order, position uint) {
 		self.values[position] *= values[order]
 	})
