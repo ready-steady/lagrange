@@ -31,11 +31,11 @@ func (self *Interpolant) Evaluate(points []float64) []float64 {
 	np := uint(len(points)) / nd
 	result := make([]float64, np)
 	for i := uint(0); i < np; i++ {
-		product := newProduct(nn)
+		weights := newWeightProduct(nn)
 		for j := uint(0); j < nd; j++ {
-			product.next(lagrange(grid[j], points[i*nd+j]))
+			weights.next(lagrange(grid[j], points[i*nd+j]))
 		}
-		result[i] = dot(product.weights, values)
+		result[i] = dot(weights.values, values)
 	}
 	return result
 }

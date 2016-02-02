@@ -6,14 +6,14 @@ import (
 	"github.com/ready-steady/assert"
 )
 
-func TestProduct(t *testing.T) {
-	product := newProduct(24)
+func TestWeightProduct(t *testing.T) {
+	product := newWeightProduct(24)
 
 	product.next([]float64{2, 3, 5, 7})
 	product.next([]float64{11, 13, 17})
 	product.next([]float64{19, 23})
 
-	assert.Equal(product.weights, []float64{
+	assert.Equal(product.values, []float64{
 		2 * 11 * 19,
 		3 * 11 * 19,
 		5 * 11 * 19,
