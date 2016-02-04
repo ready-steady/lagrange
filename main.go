@@ -41,7 +41,7 @@ func (self *Interpolant) Evaluate(points []float64) []float64 {
 	return result
 }
 
-// Tensor constructs a tensor-product grid given a set one-dimentional grids.
+// Tensor constructs a tensor-product grid given a set of one-dimentional grids.
 func Tensor(grids [][]float64) []float64 {
 	dimensions := uint(len(grids))
 	count := uint(1)
